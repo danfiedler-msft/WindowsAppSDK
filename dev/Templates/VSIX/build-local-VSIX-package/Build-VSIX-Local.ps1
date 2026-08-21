@@ -49,7 +49,7 @@
 .PARAMETER SkipRestore
     Skip NuGet restore (useful if you've already restored).
 
-.PARAMETER VsVersion
+.PARAMETER MsBuildVersion
     Visual Studio version to target for MSBuild. Default: 17 (Visual Studio 2022).
     Set to 18 for Visual Studio 2026.
 
@@ -145,7 +145,7 @@ function Find-VSInstallPath {
     return $installPath
 }
 
-function Extract-VersionFromNupkg {
+function Find-VersionFromNupkg {
     param([string]$NupkgDir)
 
     $nupkgFiles = Get-ChildItem -Path $NupkgDir -Filter "Microsoft.WindowsAppSDK.*.nupkg" |
@@ -287,7 +287,7 @@ Write-Banner "Resolving Package Version"
 if ($NupkgSourceDir -ne "" -and $WindowsAppSDKVersion -eq "") {
     $NupkgSourceDir = (Resolve-Path $NupkgSourceDir).Path
     Write-Step "Extracting version from nupkg in: $NupkgSourceDir"
-    $WindowsAppSDKVersion = Extract-VersionFromNupkg -NupkgDir $NupkgSourceDir
+    $WindowsAppSDKVersion = Find-VersionFromNupkg -NupkgDir $NupkgSourceDir
 }
 
 if ($WindowsAppSDKVersion -eq "") {
