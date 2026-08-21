@@ -89,7 +89,7 @@ param(
     [switch]$SkipRestore,
 
     [ValidateSet(17, 18)]
-    [double]$MsBuildVersion = 17
+    [int]$MsBuildVersion = 17
 )
 
 Set-StrictMode -Version 2.0
@@ -129,7 +129,7 @@ function Find-MSBuild {
         exit 1
     }
 
-    $range = '[{0},{1})' -f $MsBuildVersion, ($MsBuildVersion + 1)
+    $range = '[{0},{1}]' -f $MsBuildVersion, ($MsBuildVersion + 1)
     $msbuildPath = & $vswherePath -version $range -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe" 2>$null | Select-Object -First 1
     if (-not $msbuildPath -or -not (Test-Path $msbuildPath)) {
         Write-Err "MSBuild.exe not found. Please install Visual Studio 2022+ with the '.NET desktop development' workload."
