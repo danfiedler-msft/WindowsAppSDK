@@ -474,10 +474,6 @@ function Get-LatestOfficialWasdkVersion {
 
             $problems = @()
 
-            if ($response.PSObject.Properties['problems']) {
-                $problems += @($response.problems)
-            }
-
             foreach ($result in @($response.searchResult)) {
                 if ($result.PSObject.Properties['problems']) {
                     $problems += @($result.problems)
@@ -485,11 +481,7 @@ function Get-LatestOfficialWasdkVersion {
             }
 
             if ($problems.Count -gt 0) {
-                throw ($problems | ForEach-Object { $_.text } | Join-String -Separator "`n")
-            }
-
-            if ($problems.Count -gt 0) {
-                throw ($problems.text -join [Environment]::NewLine)
+                throw (($problems | ForEach-Object { $_.text }) -join [Environment]::NewLine)
             }
 
             $versions = foreach ($result in @($response.searchResult)) {
@@ -509,14 +501,18 @@ function Get-LatestOfficialWasdkVersion {
             $latest = $versions |
                 Where-Object {
                     $version = $_
+                    -not ($version -match '-') -and
                     -not ($excludedVersionPrefixes | Where-Object {
                         $version.StartsWith($_)
                     })
                 } |
                 ForEach-Object {
-                    [pscustomobject]@{
-                        Raw = $_
-                        Ver = [version]$_
+                    $parsed = $null
+                    if ([version]::TryParse($_, [ref]$parsed)) {
+                        [pscustomobject]@{
+                            Raw = $_
+                            Ver = $parsed
+                        }
                     }
                 } |
                 Sort-Object Ver -Descending |
